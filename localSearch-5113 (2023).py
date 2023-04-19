@@ -11,8 +11,8 @@
 
 #------------------------------------------------------------------------------
 
-#Student name:
-#Date: 
+#Willow Arana, Cobey Weemes, Mansura Roly
+#Date: 4/18/23
 
 
 #need some python libraries
@@ -56,16 +56,19 @@ def evaluate(x):
     a=np.array(x)
     b=np.array(value)
     c=np.array(weights)
-    
-    totalValue = np.dot(a,b)     #compute the value of the knapsack selection
-    totalWeight = np.dot(a,c)    #compute the weight value of the knapsack selection
-    
-    if totalWeight > maxWeight:
-         print ("Oh no! The solution is infeasible!  What to do?  What to do?")   #you will probably want to change this...
-      
-    return [totalValue, totalWeight]   #returns a list of both total value and total weight
-          
-       
+    totalValue = np.dot(a,b) #compute the value of the knapsack selection
+    totalWeight = np.dot(a,c) #compute the weight value of the knapsack selection
+    sortedWeights = sorted(weights, reverse = True) #sort the weights in descending order
+    heaviestItem = 0 #start with the heaviest item
+    while totalWeight > maxWeight: #if the knapsack is too heavy
+        for i in range(0,n): #for each item
+            if weights[i] == sortedWeights[heaviestItem] and x[i] == 1: #if the item is the heaviest item and is in the knapsack
+                x[i] = 0 #remove the item from the knapsack
+                totalWeight -= weights[i] #update the total weight
+                totalValue -= value[i] #update the total value
+                break #we already removed the largest weight, so no need to stay in for loop
+        heaviestItem += 1 #go to the next heaviest item
+    return [totalValue, totalWeight] #returns a list of both total value and total weight
 #here is a simple function to create a neighborhood
 #1-flip neighborhood of solution x         
 def neighborhood(x):
@@ -85,14 +88,17 @@ def neighborhood(x):
 
 #create the initial solution
 def initial_solution():
-    x = []   #i recommend creating the solution as a list
-    
-    for i in range(n):
-    
-        x.append(i)  #this is certainly wrong!
-        
+    x = [0] * n #this list has a value for each item: 1 indicates the item is packed, 0 otherwise
+    currentWeight = 0 #weight starts at zero before we add items
+    full = False
+    while not full: #while we still have available capacity
+        selectedItem = myPRNG.randint(0,n - 1) #select a random item to add
+        if currentWeight + weights[selectedItem] <= maxWeight: #if adding the item does not exceed the capacity
+            x[selectedItem] = 1 #add the item to the knapsack
+            currentWeight += weights[selectedItem] #update the current weight
+        else:
+                full = True #the weight limit has been reached
     return x
-
 
 
 
