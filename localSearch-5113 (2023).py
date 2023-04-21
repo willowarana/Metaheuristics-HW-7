@@ -146,7 +146,7 @@ numTemps = 10 #number of temperatures
 t = [numTemps] #cooling schedule
 t[0] = heatingProcedure() #initialize starting temperature
 M = [] #number of iterations for each temperature
-current = s
+current = s #initialize current solution
 k = 0
 
 print(t[0])
