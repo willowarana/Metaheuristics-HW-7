@@ -100,31 +100,6 @@ def initial_solution():
         else:
                 full = True #the weight limit has been reached
     return x
-def heatingProcedure(): #used to attain a high enough initial temperature
-    s = initial_solution() #define a random initial solution
-    temp = 0 #initial temperature, will be increased
-    numAcceptedMoves = 0 #number of accepted moves
-    numImprovingMoves = 0
-    nbrhood = neighborhood(s) #neighborhood of random solution
-    desiredProportion = 0.9 #desired value of proportion of accepted moves to total moves
-    while (numAcceptedMoves/n) <= desiredProportion: #while the desired proportion is unmet
-        temp += 2  # increase the temperature
-        numAcceptedMoves = 0 #reset the number of accepted moves
-        numImprovingMoves = 0
-        for i in range(0,n): #for all neighbors
-            fs1 = evaluate(s)[0]
-            fs2 = evaluate(nbrhood[i])[0]
-            if fs2 > fs1:
-                numAcceptedMoves += 1
-                numImprovingMoves += 1
-            else:
-                acceptP = math.exp(-(fs1-fs2)/temp) #probability of move acceptance
-                actualP = myPRNG.random() #randomly generated probability
-                if actualP <= acceptP: #if move is accepted
-                    numAcceptedMoves += 1 #keep track of accepted moves
-    print(numImprovingMoves)
-    print(numAcceptedMoves)
-    return temp
 
 
 
@@ -144,11 +119,13 @@ done = 0
 s = initial_solution() #starting solution
 numTemps = 10 #number of temperatures
 t = [numTemps] #cooling schedule
-t[0] = heatingProcedure() #initialize starting temperature
+probAccept = 0.5
+t[0] = -max(value)/math.log(probAccept,math.e) #initialize starting temperature
 M = [] #number of iterations for each temperature
 current = s #initialize current solution
 k = 0
 
+print(max(value))
 print(t[0])
     
 print ("\nFinal number of solutions checked: ", solutionsChecked)
