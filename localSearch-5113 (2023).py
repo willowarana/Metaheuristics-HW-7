@@ -17,6 +17,7 @@
 
 #need some python libraries
 import copy
+import math
 from random import Random   #need this for the random number generation -- do not change
 import numpy as np
 
@@ -99,6 +100,32 @@ def initial_solution():
         else:
                 full = True #the weight limit has been reached
     return x
+def heatingProcedure(): #used to attain a high enough initial temperature
+    s = initial_solution() #define a random initial solution
+    temp = 0 #initial temperature, will be increased
+    numAcceptedMoves = 0 #number of accepted moves
+    numImprovingMoves = 0
+    nbrhood = neighborhood(s) #neighborhood of random solution
+    desiredProportion = 0.9 #desired value of proportion of accepted moves to total moves
+    while (numAcceptedMoves/n) <= desiredProportion: #while the desired proportion is unmet
+        temp += 2  # increase the temperature
+        numAcceptedMoves = 0 #reset the number of accepted moves
+        numImprovingMoves = 0
+        for i in range(0,n): #for all neighbors
+            fs1 = evaluate(s)[0]
+            fs2 = evaluate(nbrhood[i])[0]
+            if fs2 > fs1:
+                numAcceptedMoves += 1
+                numImprovingMoves += 1
+            else:
+                acceptP = math.exp(-(fs1-fs2)/temp) #probability of move acceptance
+                actualP = myPRNG.random() #randomly generated probability
+                if actualP <= acceptP: #if move is accepted
+                    numAcceptedMoves += 1 #keep track of accepted moves
+    print(numImprovingMoves)
+    print(numAcceptedMoves)
+    return temp
+
 
 
 
@@ -112,31 +139,21 @@ f_best = f_curr[:]
 
 
 
-#begin local search overall logic ----------------
+#begin simulated annealing overall logic ----------------
 done = 0
-    
-while done == 0:
-            
-    Neighborhood = neighborhood(x_curr)   #create a list of all neighbors in the neighborhood of x_curr
-    
-    for s in Neighborhood:                #evaluate every member in the neighborhood of x_curr
-        solutionsChecked = solutionsChecked + 1
-        if evaluate(s)[0] > f_best[0]:   
-            x_best = s[:]                 #find the best member and keep track of that solution
-            f_best = evaluate(s)[:]       #and store its evaluation  
-    
-    if f_best == f_curr:                  #if there were no improving solutions in the neighborhood
-        done = 1
-    else:
-        
-        x_curr = x_best[:]         #else: move to the neighbor solution and continue
-        f_curr = f_best[:]         #evalute the current solution
-        
-        print ("\nTotal number of solutions checked: ", solutionsChecked)
-        print ("Best value found so far: ", f_best)        
+s = initial_solution() #starting solution
+numTemps = 10 #number of temperatures
+t = [numTemps] #cooling schedule
+t[0] = heatingProcedure() #initialize starting temperature
+M = [] #number of iterations for each temperature
+current = s
+k = 0
+
+print(t[0])
     
 print ("\nFinal number of solutions checked: ", solutionsChecked)
 print ("Best value found: ", f_best[0])
 print ("Weight is: ", f_best[1])
 print ("Total number of items selected: ", np.sum(x_best))
 print ("Best solution: ", x_best)
+
