@@ -107,30 +107,47 @@ def initial_solution():
 #varaible to record the number of solutions evaluated
 solutionsChecked = 0
 
-x_curr = initial_solution()  #x_curr will hold the current solution 
-x_best = x_curr[:]           #x_best will hold the best solution 
-f_curr = evaluate(x_curr)    #f_curr will hold the evaluation of the current soluton 
-f_best = f_curr[:]
-
-
+#test
+s = [1] * 150
+f = evaluate(s)
+print(s)
 
 #begin simulated annealing overall logic ----------------
-done = 0
-s = initial_solution() #starting solution
-numTemps = 10 #number of temperatures
-t = [numTemps] #cooling schedule
-probAccept = 0.5
+numTemps = 100 #number of temperatures
+probAccept = 0.5 #desired acceptance probability of worst possible neighbor
+t = [0.0] * numTemps #cooling schedule
 t[0] = -max(value)/math.log(probAccept,math.e) #initialize starting temperature
-M = [] #number of iterations for each temperature
-current = s #initialize current solution
-k = 0
-
-print(max(value))
-print(t[0])
-    
+M = 50 #number of iterations for each temperature
+alpha = 0.98 #cooling rate
+for k in range(1,numTemps): #for all temperatures except the initial
+    t[k] = alpha * t[k-1]   #implement cooling schedule
+current = initial_solution() #starting solution
+x_best = current
+f_best = evaluate(current)
+for k in range(0,numTemps): #for all temperatures
+    m = 0 #keep track of iterations
+    while m < M: #while we still need to iterate
+        chosenNeighbor = myPRNG.randint(0,149) #choose a random neighbor
+        s = neighborhood(current)[chosenNeighbor] #initialize s to that random neighbor
+        fs = evaluate(s) #value of chosen neighbor
+        fcurrent = evaluate(current) #value of current solution
+        solutionsChecked += 1
+        if fs[0] >= fcurrent[0]: #if neighbor is improving
+            current = s #set current to its neighbor
+            if fs[0] >= f_best[0]:
+                x_best = current
+                f_best = fs
+        else:
+            delta = fs[0] - fcurrent[0] #difference in values between current and its neighbor
+            epsilon = myPRNG.random() #random probability
+            if epsilon <= math.exp(-delta/t[k]): #probability that we accept the move
+                current = s #update current and accept the move
+        m = m + 1 #next iteration at temperature k
+        print("\nTotal number of solutions checked: ", solutionsChecked)
+        print("Best value found so far: ", f_best)
+print ("Initial temperature: ", t[0])
 print ("\nFinal number of solutions checked: ", solutionsChecked)
 print ("Best value found: ", f_best[0])
 print ("Weight is: ", f_best[1])
 print ("Total number of items selected: ", np.sum(x_best))
 print ("Best solution: ", x_best)
-
