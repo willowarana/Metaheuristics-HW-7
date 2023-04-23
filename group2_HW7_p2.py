@@ -74,17 +74,17 @@ def createChromosome(n):
 #create initial population by calling the "createChromosome" function many times and adding each to a list of chromosomes (a.k.a., the "population")
 def initializePopulation(): #n is size of population; d is dimensions of chromosome
 
-    population = []
-    populationFitness = []
+    population = [] #list of chromosomes in the population
+    populationFitness = [] #list of fitness values in the population
 
-    for i in range(populationSize):
-        population.append(createChromosome(n))
-        populationFitness.append(evaluate(population[i]))
+    for i in range(populationSize): #for each chromosome in the population
+        population.append(createChromosome(n)) #add a chromosome
+        populationFitness.append(evaluate(population[i])) #add that chromosome's fitness value to the fitness list
 
-    tempZip = zip(population, populationFitness)
-    popVals = sorted(tempZip, key=lambda tempZip: tempZip[1], reverse = True)
+    tempZip = zip(population, populationFitness) #store the population and its fitness values
+    popVals = sorted(tempZip, key=lambda tempZip: tempZip[1], reverse = True) #sort the population by best value
 
-    return popVals
+    return popVals #return the population and fitness values
 
 #implement a crossover
 def crossover(x1,x2):
@@ -255,8 +255,8 @@ def main():
 
         mates=rouletteWheel(Population) #determine the set of mates
 
-        Offspring = breeding(mates) #generate offspring
-        Population = insert(Population, Offspring) #create a new population from the offspring
+        Offspring = breeding(mates) #generate offspring and do mutations
+        Population = insert(Population, Offspring) #create the distribution of the new population
 
         #end of GA main code
 
