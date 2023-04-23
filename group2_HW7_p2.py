@@ -183,14 +183,13 @@ def rouletteWheel(population):
 
 #function to mutate solutions
 def mutate(x):
-    #create some mutation logic  -- make sure to incorporate "mutationRate" somewhere and dont' do TOO much mutation
-    rand_num = myPRNG.random()
-    mutated_x=x[:]
-    if rand_num <= mutationRate:  # Perform a cross over
-        mutation_point=myPRNG.randint(1,n-1)
-        mutated_x[mutation_point]= 1-mutated_x[mutation_point]
-        return mutated_x
-    return mutated_x
+    rand_num = myPRNG.random() #generate a random number
+    mutated_x=x[:] #make a copy of the given solution
+    if rand_num <= mutationRate:  #if mutation occurs
+        mutation_point=myPRNG.randint(1,n-1) # #choose a random item
+        mutated_x[mutation_point]= 1-mutated_x[mutation_point] #swap from 0 to 1 or 1 to 0
+        return mutated_x #return mutated solution
+    return mutated_x #return original solution
 
 
 #breeding -- uses the "mating pool" and calls "crossover" function
@@ -224,11 +223,7 @@ def breeding(matingPool):
 
 #insertion step
 def insert(pop,kids):
-
-    #this is not a good solution here... essentially this is replacing the previous generation with the offspring and not implementing any type of elitism
-    #at the VERY LEAST evaluate the best solution from "pop" to make sure you are not losing a very good chromosome from last generation
-    #maybe want to keep the top 5? 10? solutions from pop -- it's up to you.
-    new_list=pop[:10]+kids[10:]
+    new_list = pop[:eliteSolutions] + kids #keep the elite solutions and insert the children
     return new_list
 
 
