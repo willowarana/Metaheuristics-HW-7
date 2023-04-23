@@ -59,16 +59,16 @@ eliteSolutions = 10  #currently not used in the implementation; neeed to use som
 
 #create an continuous valued chromosome
 def createChromosome(n):
-    #this code as-is expects chromosomes to be stored as a list, e.g., x = []
-    x = []   # i recommend creating the solution as a list
-    selected = []
-    while sum(all_items[item][1] for item in selected) < maxWeight:
-        item = random.choice(list(all_items.keys()))
-        if sum(all_items[item][1] for item in selected) + all_items[item][1] <= maxWeight:
-            selected.append(item)
+    x = [0] * n #this list has a value for each item: 1 indicates the item is packed, 0 otherwise
+    currentWeight = 0 #weight starts at zero before we add items
+    full = False
+    while not full: #while we still have available capacity
+        selectedItem = myPRNG.randint(0,n - 1) #select a random item to add
+        if currentWeight + weights[selectedItem] <= maxWeight: #if adding the item does not exceed the capacity
+            x[selectedItem] = 1 #add the item to the knapsack
+            currentWeight += weights[selectedItem] #update the current weight
         else:
-            x = [1 if i in selected else 0 for i in range(1, n+1)]
-            break
+                full = True #the weight limit has been reached
     return x
 
 #create initial population by calling the "createChromosome" function many times and adding each to a list of chromosomes (a.k.a., the "population")
@@ -120,18 +120,18 @@ def itemsSelected(x):
 #function to evaluate a solution x
 def evaluate(x):
 
-    a=np.array(x)
+    a=np.array(x) #create arrays from the previous lists
     b=np.array(value)
     c=np.array(weights)
 
     totalValue = np.dot(a,b)     #compute the value of the knapsack selection
-    totalWeight = np.dot(a,c)    #compute the weight value of the knapsack selection
+    totalWeight = calcWeight(x)   #compute the weight value of the knapsack selection
 
-    if totalWeight > maxWeight:
+    if totalWeight > maxWeight: #if the weight exceeds the limit
         penalty = 500*(totalWeight - maxWeight) # set a large penalty for exceeding the max weight
-        totalValue = totalValue-penalty
+        totalValue = totalValue-penalty #add the penalty to the totalValue
 
-    fitness  = totalValue
+    fitness  = totalValue #set the fitness value to the total value
     return fitness   #returns the chromosome fitness
 
 
@@ -197,22 +197,22 @@ def mutate(x):
 def breeding(matingPool):
     #the parents will be the first two individuals, then next two, then next two and so on
 
-    children = []
-    childrenFitness = []
-    for i in range(0,populationSize-1,2):
-        child1,child2=crossover(matingPool[i],matingPool[i+1])
+    children = [] #list of children
+    childrenFitness = [] #list of associated fitness values of children
+    for i in range(0,populationSize-1,2): #for every even chromosome in the population
+        child1,child2=crossover(matingPool[i],matingPool[i+1]) #two parents are chosen to mate
 
-        child1=mutate(child1)
-        child2=mutate(child2)
+        child1=mutate(child1) #mutate the first child
+        child2=mutate(child2) #mutate the second child
 
-        children.append(child1)
+        children.append(child1) #add the children to the list of children
         children.append(child2)
 
-        childrenFitness.append(evaluate(child1))
+        childrenFitness.append(evaluate(child1)) #add the children's fitness scores to the fitness list
         childrenFitness.append(evaluate(child2))
 
-    tempZip = zip(children, childrenFitness)
-    popVals = sorted(tempZip, key=lambda tempZip: tempZip[1], reverse = True)
+    tempZip = zip(children, childrenFitness) #store the children and their associated fitness values in one list
+    popVals = sorted(tempZip, key=lambda tempZip: tempZip[1], reverse = True) #sort the children by value
 
     #the return object is a sorted list of tuples:
     #the first element of the tuple is the chromosome; the second element is the fitness value
